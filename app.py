@@ -22,11 +22,11 @@ st.set_page_config(
 ##-1 Read csv and set cache-##
 # Cache the data loading using @st.cache_data to improve performance
 @st.cache_data
-def load_data():
+def load_data(file1, file2, file3):
     # Load CSV files into Polars DataFrames
-    raw = pl.read_csv('raw_add01.csv')
-    stock = pl.read_csv('stock.csv')
-    dateInfo = pl.read_csv('dateInfo.csv')
+    raw = pl.read_csv(file1)
+    stock = pl.read_csv(file2)
+    dateInfo = pl.read_csv(file3)
     
     # Convert the 'Date' column to datetime type in each DataFrame
     raw = raw.with_columns(pl.col('Date').str.strptime(pl.Datetime))
@@ -49,7 +49,7 @@ date_info_file = st.sidebar.file_uploader("Upload dateInfo.csv", type=["csv"])
 
 if raw_file and stock_file and date_info_file:
     
-    raw, stock, dateInfo = load_data()
+    raw, stock, dateInfo = load_data(raw_file, stock_file, date_info_file)
 
 
     ##-2 Filter UI-##
