@@ -145,10 +145,11 @@ if raw_file and stock_file and date_info_file:
         pl.col("Date").dt.strftime("%Y-%m-%d").alias("Date")
     ])
 
+    sku_cols = raw_filtered.select(pl.col("SKU")).unique().to_series().to_list()
+
     # Convert to pandas and show in Streamlit
     df_disp = df_disp_pl.to_pandas()
     df_disp['Date'] = pd.to_datetime(df_disp['Date'])
-    st.write("Final Processed Data:")
 
 
     tab1, tab2 = st.tabs(["Dashborad", "Department"])
@@ -168,83 +169,81 @@ if raw_file and stock_file and date_info_file:
         # df_salesW = resample_weekly(df_salesD)
         st.subheader('Time Series Plot')
 
-         sku_cols = raw_filtered.select(pl.col("SKU")).unique().to_series().to_list()
-     
-         color0 = '#B02A29'
-         color1 = '#00A1E4'
-         color2 = 'purple'
-         color3 = 'orange'
-         color4 = 'black'
-         color_box6 = ['#E4C087', '#F3F3E0', '#133E87', '#CBDCEB', '#BC7C7C', '#F6EFBD']
-     
-         # Assuming df_disp and other data are already defined
-     
-         fig, ax1 = plt.subplots(figsize=(16, 10), 
-                                     nrows=5, 
-                                     ncols=1, 
-                                     sharex=True, 
-                                     gridspec_kw={'hspace': 0},
-                                     height_ratios=(0.5, 1.5, 1.5, 1, 1)
-                                     )
-     
-         # Plot Sales as a bar plot
-         df_disp_events = df_disp.dropna(subset=['Holiday']).query('Holiday == 1')
-         ax1[0].scatter(df_disp_events['Date'], df_disp_events['Holiday'], color=color0, label='Holiday')
-         ax1[0].set_ylabel('Holiday')
-         ax1[0].set_yticks([0, 1])
-         ax1[0].tick_params(axis='y')
-         ax1[0].legend(loc='upper right')
-         ax1[0].grid(True)
-     
-         ax1[1].bar(df_disp['Date'], df_disp['Sales'], color=color1, label='Sales', alpha=0.5)
-         ax1[1].bar(df_disp.query('Event == Event')['Date'], df_disp.query('Event == Event')['Sales'], color=color0, label='Event Sales', alpha=0.8)
-         ax1[1].set_ylabel('Sales')
-         ax1[1].tick_params(axis='y')
-         ax1[1].legend(loc='upper right')
-     
-         bar_width = 0.5
-         bottom_values = np.zeros(len(df_disp['Date']))
-     
-         # Loop through all sku columns for the stacked bar plot
-         for i in range(len(sku_cols)):
-             ax1[2].bar(df_disp['Date'], df_disp[sku_cols[i]], bottom=bottom_values,
-                     color=color_box6[i], edgecolor=color_box6[i], width=bar_width, label=sku_cols[i])
-             bottom_values += df_disp[sku_cols[i]]
-     
-         ax1[2].legend(loc='upper right')
-         ax1[2].set_ylabel('SKU')
-     
-     
-         # Create a third y-axis for Customers
-         ax1[3].plot(df_disp['Date'], df_disp['Customers'], color=color3, label='Customers', alpha=1, linewidth=2)
-         ax1[3].set_ylabel('Customers')
-         ax1[3].tick_params(axis='y')
-         ax1[3].legend(loc='upper right')
-     
-         # Plot Temperature on the second subplot
-         ax1[4].plot(df_disp['Date'], df_disp['Temperature'], color=color4, label='Temperature', alpha=0.5)
-         ax1[4].set_ylabel('Temperature')
-         ax1[4].tick_params(axis='y')
-         ax1[4].legend(loc='upper right')
-     
-         for ax in ax1:
-             ax.label_outer()
-     
-         # Create the second x-axis at the top
-         ax_top = ax1[0].twiny()  # Create a twin x-axis sharing the same x-axis as the top plot
-         ax_top.set_xlim(ax1[0].get_xlim())  # Match the x-limits
-     
-         # Set major and minor ticks for the Date
-         ax_top.xaxis.set_major_locator(mdates.MonthLocator())  # Set major ticks as months
-         ax_top.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m'))  # Format the date as 'Month Year'
-     
-         # Optionally set label for the top axis
-         ax_top.set_xlabel('Date (Top Axis)')
-         ax_top.tick_params(axis='x', rotation=45)  # Rotate tick labels for readability
-     
-         # Adjust the layout
-         fig.tight_layout()
-         st.pyplot(fig)
+        color0 = '#B02A29'
+        color1 = '#00A1E4'
+        color2 = 'purple'
+        color3 = 'orange'
+        color4 = 'black'
+        color_box6 = ['#E4C087', '#F3F3E0', '#133E87', '#CBDCEB', '#BC7C7C', '#F6EFBD']
+
+        # Assuming df_disp and other data are already defined
+
+        fig, ax1 = plt.subplots(figsize=(16, 10), 
+                                    nrows=5, 
+                                    ncols=1, 
+                                    sharex=True, 
+                                    gridspec_kw={'hspace': 0},
+                                    height_ratios=(0.5, 1.5, 1.5, 1, 1)
+                                    )
+
+        # Plot Sales as a bar plot
+        df_disp_events = df_disp.dropna(subset=['Holiday']).query('Holiday == 1')
+        ax1[0].scatter(df_disp_events['Date'], df_disp_events['Holiday'], color=color0, label='Holiday')
+        ax1[0].set_ylabel('Holiday')
+        ax1[0].set_yticks([0, 1])
+        ax1[0].tick_params(axis='y')
+        ax1[0].legend(loc='upper right')
+        ax1[0].grid(True)
+
+        ax1[1].bar(df_disp['Date'], df_disp['Sales'], color=color1, label='Sales', alpha=0.5)
+        ax1[1].bar(df_disp.query('Event == Event')['Date'], df_disp.query('Event == Event')['Sales'], color=color0, label='Event Sales', alpha=0.8)
+        ax1[1].set_ylabel('Sales')
+        ax1[1].tick_params(axis='y')
+        ax1[1].legend(loc='upper right')
+
+        bar_width = 0.5
+        bottom_values = np.zeros(len(df_disp['Date']))
+
+        # Loop through all sku columns for the stacked bar plot
+        for i in range(len(sku_cols)):
+            ax1[2].bar(df_disp['Date'], df_disp[sku_cols[i]], bottom=bottom_values,
+                    color=color_box6[i], edgecolor=color_box6[i], width=bar_width, label=sku_cols[i])
+            bottom_values += df_disp[sku_cols[i]]
+
+        ax1[2].legend(loc='upper right')
+        ax1[2].set_ylabel('SKU')
+
+
+        # Create a third y-axis for Customers
+        ax1[3].plot(df_disp['Date'], df_disp['Customers'], color=color3, label='Customers', alpha=1, linewidth=2)
+        ax1[3].set_ylabel('Customers')
+        ax1[3].tick_params(axis='y')
+        ax1[3].legend(loc='upper right')
+
+        # Plot Temperature on the second subplot
+        ax1[4].plot(df_disp['Date'], df_disp['Temperature'], color=color4, label='Temperature', alpha=0.5)
+        ax1[4].set_ylabel('Temperature')
+        ax1[4].tick_params(axis='y')
+        ax1[4].legend(loc='upper right')
+
+        for ax in ax1:
+            ax.label_outer()
+
+        # Create the second x-axis at the top
+        ax_top = ax1[0].twiny()  # Create a twin x-axis sharing the same x-axis as the top plot
+        ax_top.set_xlim(ax1[0].get_xlim())  # Match the x-limits
+
+        # Set major and minor ticks for the Date
+        ax_top.xaxis.set_major_locator(mdates.MonthLocator())  # Set major ticks as months
+        ax_top.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m'))  # Format the date as 'Month Year'
+
+        # Optionally set label for the top axis
+        ax_top.set_xlabel('Date (Top Axis)')
+        ax_top.tick_params(axis='x', rotation=45)  # Rotate tick labels for readability
+
+        # Adjust the layout
+        fig.tight_layout()
+        st.pyplot(fig)
 
 
     with tab2:
