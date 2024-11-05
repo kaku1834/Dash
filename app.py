@@ -29,10 +29,8 @@ def load_data():
     with zipfile.ZipFile('data.zip', 'r') as z:
         with z.open('data/raw_add01.csv') as raw_file:
             raw = pl.read_csv(raw_file)
-        with z.open('data/stock.csv') as stock_file:
-            stock = pl.read_csv(stock_file)
-        with z.open('data/dateInfo.csv') as date_info_file:
-            dateInfo = pl.read_csv(date_info_file)
+    stock = pl.read_csv('stock.csv')
+    dateInfo = pl.read_csv('dateInfo.csv')
 
     # Convert the 'Date' column to datetime type in each DataFrame
     raw = raw.with_columns(pl.col('Date').str.strptime(pl.Datetime))
