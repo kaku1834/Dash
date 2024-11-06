@@ -29,17 +29,19 @@ def load_data():
     with zipfile.ZipFile('raw_add01.zip', 'r') as z:
         with z.open('raw_add01.csv') as raw_file:
             raw = pl.read_csv(raw_file)
+    
+    # Ensure paths to other CSVs are correct
     stock = pl.read_csv('stock.csv')
     dateInfo = pl.read_csv('dateInfo.csv')
 
     # Convert the 'Date' column to datetime type in each DataFrame
-    raw = raw.with_columns(pl.col('Date').str.strptime(pl.Datetime))
-    stock = stock.with_columns(pl.col('Date').str.strptime(pl.Datetime))
-    dateInfo = dateInfo.with_columns(pl.col('Date').str.strptime(pl.Datetime))
+    raw = raw.with_columns(pl.col('Date').str.strptime(pl.Datetime, fmt='%Y-%m-%d'))
+    stock = stock.with_columns(pl.col('Date').str.strptime(pl.Datetime, fmt='%Y-%m-%d'))
+    dateInfo = dateInfo.with_columns(pl.col('Date').str.strptime(pl.Datetime, fmt='%Y-%m-%d'))
 
     return raw, stock, dateInfo
 
-@st.cache_data  # 👈 Add the caching decorator
+@st.cache_data  # Add the caching decorator
 def get_sorted_unique_values(_df, column):
     return sorted(_df[column].unique())
 
