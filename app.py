@@ -26,18 +26,16 @@ st.set_page_config(
 @st.cache_data
 def load_data():
     # Open the ZIP file and read CSV files into Polars DataFrames
-    with zipfile.ZipFile('raw_add01.zip', 'r') as z:
-        with z.open('raw_add01.csv') as raw_file:
+    with zipfile.ZipFile('data.zip', 'r') as z:
+        with z.open('data/raw_add01.csv') as raw_file:
             raw = pl.read_csv(raw_file)
-    
-    # Ensure paths to other CSVs are correct
     stock = pl.read_csv('stock.csv')
     dateInfo = pl.read_csv('dateInfo.csv')
 
     # Convert the 'Date' column to datetime type in each DataFrame
-    raw = raw.with_columns(pl.col('Date').str.strptime(pl.Datetime, fmt='%Y-%m-%d'))
-    stock = stock.with_columns(pl.col('Date').str.strptime(pl.Datetime, fmt='%Y-%m-%d'))
-    dateInfo = dateInfo.with_columns(pl.col('Date').str.strptime(pl.Datetime, fmt='%Y-%m-%d'))
+    raw = raw.with_columns(pl.col('Date').str.strptime(pl.Datetime))
+    stock = stock.with_columns(pl.col('Date').str.strptime(pl.Datetime))
+    dateInfo = dateInfo.with_columns(pl.col('Date').str.strptime(pl.Datetime))
 
     return raw, stock, dateInfo
 
