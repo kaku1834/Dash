@@ -27,7 +27,7 @@ st.set_page_config(
 def load_data():
     # Open the ZIP file and read CSV files into Polars DataFrames
     with zipfile.ZipFile('raw_add01.zip', 'r') as z:
-        with z.open('raw_add01/raw_add01.csv') as raw_file:
+        with z.open('raw_add01.csv') as raw_file:
             raw = pl.read_csv(raw_file)
     stock = pl.read_csv('stock.csv')
     dateInfo = pl.read_csv('dateInfo.csv')
